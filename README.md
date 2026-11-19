@@ -13,40 +13,39 @@ This is an educational/portfolio engineering study. It is **not** a validated pa
 - Equivalent one-dimensional steady-state thermal resistance network.
 - Temperature rise under prescribed power dissipation.
 - First-order in-plane CTE mismatch strain between silicon die and substrate.
-- Fully constrained biaxial stress *indicator* based on an explicitly stated effective modulus.
+- A fully constrained biaxial stress *indicator* based on an explicitly stated effective modulus.
 - Synthetic parametric dataset.
 - Linear Regression, Random Forest and Gradient Boosting surrogate models.
-- Held-out test metrics, prediction plots and feature-importance analysis.
+- Held-out test metrics and feature-importance analysis.
 
 ## Model assumptions and limitations
 The layers are represented as an equivalent series thermal path. Version 1 intentionally omits lateral heat spreading, interface/contact resistance, solder bumps, temperature-dependent properties, viscoelasticity, plasticity, residual stress and detailed package geometry. The stress output is an indicator under a simplified constraint assumption, not a local FEA stress or failure criterion.
 
-See the `docs/` directory for the project charter, governing equations, assumptions, workflow, data dictionary and validation protocol.
+See the docs directory for the project charter, governing equations, assumptions, workflow, data dictionary and validation protocol.
 
 ## Quick start
-```bash
-python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\\Scripts\\activate
-pip install -r requirements.txt
+    python -m venv .venv
+    source .venv/bin/activate        # Windows: .venv\Scripts\activate
+    pip install -r requirements.txt
 
-python -m src.dataset_generation --n-samples 3000 --seed 42
-python -m src.train_models
-```
+    python -m src.dataset_generation --n-samples 3000 --seed 42
+    python -m src.train_models
 
 Run the physics sanity tests with:
-```bash
-python -m unittest discover -s tests -v
-```
+
+    python -m unittest discover -s tests -v
 
 ## Repository map
-- `docs/`: project scope, equations, assumptions, workflow, data dictionary and validation plan.
-- `src/`: thermal and thermo-mechanical models, dataset generation and ML training.
-- `tests/`: basic physical sanity checks.
-- `data/`: generated synthetic dataset and its description.
-- `results/`: baseline metrics, feature importance and parity plots.
+- docs/: project scope, equations, assumptions, workflow, data dictionary and validation plan.
+- src/: thermal and thermo-mechanical models, dataset generation and ML training.
+- tests/: basic physical sanity checks.
+- data/: generated synthetic dataset and its description.
+- results/: generated metrics, feature importance and parity plots.
 
-## Initial synthetic baseline
-The checked-in `results/model_metrics.csv` and figures document one initial run on a 3,000-row synthetic dataset. The reported scores measure how well ML models approximate the outputs of this particular reduced-order model; they are not experimental accuracy or real package reliability performance. Parameter ranges still require review against traceable material datasheets/literature before being described as representative of a specific package technology.
+## Initial Version 1 baseline
+The first local run used 3,000 synthetic samples and compared Linear Regression, Random Forest and Gradient Boosting on a held-out split. Running the commands above regenerates the dataset, metrics and figures from the committed code. The scores measure approximation of this particular reduced-order model only; they are not experimental accuracy or real package reliability performance.
+
+The initial parameter ranges are exploratory and still require review against traceable material datasheets/literature before being described as representative of a specific package technology. The broad sweep can produce extreme temperature estimates under some input combinations; this is documented in docs/03_assumptions_and_limitations.md and must be addressed before real-package interpretation.
 
 ## Next development steps
 1. Verify parameter ranges against public material sources and define a defensible operating domain.
