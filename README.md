@@ -1,13 +1,13 @@
 # Physics-Guided Machine Learning for Thermo-Mechanical Response of Semiconductor Packages
 
-**Project status:** Version 1 — reduced-order model and baseline ML workflow  
-**Tools:** Python, NumPy, Pandas, scikit-learn, Matplotlib  
-**Data:** Synthetic data generated from the documented physics model
+**Project status:** Version 1 — model and workflow definition  
+**Primary tools:** Python, NumPy, Pandas, scikit-learn, Matplotlib  
+**Data status:** Synthetic, generated from the documented reduced-order physics model
 
 ## Objective
-Build a transparent reduced-order thermal and thermo-mechanical model for an equivalent multilayer semiconductor package, generate a reproducible synthetic dataset, and train machine-learning surrogate models to reproduce selected physics-model outputs.
+Build a transparent reduced-order thermal and thermo-mechanical model for an equivalent multilayer semiconductor package, generate a reproducible synthetic dataset, and train ML surrogate models to reproduce selected physics-model outputs.
 
-This is an educational/portfolio engineering study. It is **not** a validated package qualification tool, a prediction of field failure, or a substitute for detailed finite-element analysis and experimental validation.
+This is an educational/portfolio engineering study. It is **not** a validated package qualification tool, a prediction of field failure, or a substitute for detailed FEA and experimental validation.
 
 ## Version 1 scope
 - Equivalent one-dimensional steady-state thermal resistance network.
@@ -16,43 +16,48 @@ This is an educational/portfolio engineering study. It is **not** a validated pa
 - A fully constrained biaxial stress *indicator* based on an explicitly stated effective modulus.
 - Synthetic parametric dataset.
 - Linear Regression, Random Forest and Gradient Boosting surrogate models.
-- Held-out test metrics and feature-importance analysis.
+- Held-out test metrics, prediction plots, residual checks and feature importance.
 
-## Model assumptions and limitations
-The layers are represented as an equivalent series thermal path. Version 1 intentionally omits lateral heat spreading, interface/contact resistance, solder bumps, temperature-dependent properties, viscoelasticity, plasticity, residual stress and detailed package geometry. The stress output is an indicator under a simplified constraint assumption, not a local FEA stress or failure criterion.
-
-See the docs directory for the project charter, governing equations, assumptions, workflow, data dictionary and validation protocol.
+## Model assumptions
+See [`docs/03_assumptions_and_limitations.md`](docs/03_assumptions_and_limitations.md). The layers are represented as an equivalent series thermal path. This intentionally omits lateral heat spreading, interface/contact resistance, solder bumps, temperature-dependent properties, viscoelasticity, plasticity, residual stress and detailed package geometry.
 
 ## Quick start
-    python -m venv .venv
-    source .venv/bin/activate        # Windows: .venv\Scripts\activate
-    pip install -r requirements.txt
+```bash
+python -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
 
-    python -m src.dataset_generation --n-samples 3000 --seed 42
-    python -m src.train_models
+python -m src.dataset_generation --n-samples 3000 --seed 42
+python -m src.train_models
+```
 
-Run the physics sanity tests with:
+The scripts write the generated dataset to `data/` and model outputs to `results/`.
 
-    python -m unittest discover -s tests -v
+## Reproducibility
+- Fixed random seed is used for dataset generation and train/test splitting.
+- All model inputs, outputs, units and assumptions are documented.
+- No experimental or proprietary semiconductor data are used.
+- Model metrics are only meaningful relative to this synthetic physics model.
 
 ## Repository map
-- docs/: project scope, equations, assumptions, workflow, data dictionary and validation plan.
-- src/: thermal and thermo-mechanical models, dataset generation and ML training.
-- tests/: basic physical sanity checks.
-- data/: generated synthetic dataset and its description.
-- results/: generated metrics, feature importance and parity plots.
+- `docs/`: project charter, equations, assumptions, workflow, data dictionary and validation plan.
+- `src/`: physics model, dataset generation and ML training.
+- `tests/`: basic physical sanity checks.
+- `data/`: generated synthetic dataset (not committed by default if large; see `.gitignore`).
+- `results/`: generated metrics and figures.
 
-## Initial Version 1 baseline
-The first local run used 3,000 synthetic samples and compared Linear Regression, Random Forest and Gradient Boosting on a held-out split. Running the commands above regenerates the dataset, metrics and figures from the committed code. The scores measure approximation of this particular reduced-order model only; they are not experimental accuracy or real package reliability performance.
+## Initial Version 1 run (synthetic data)
+A reproducible 3,000-row dataset was generated with seed 42. The initial held-out test run produced the following Gradient Boosting R² values:
 
-The initial parameter ranges are exploratory and still require review against traceable material datasheets/literature before being described as representative of a specific package technology. The broad sweep can produce extreme temperature estimates under some input combinations; this is documented in docs/03_assumptions_and_limitations.md and must be addressed before real-package interpretation.
+| Target | R² |
+|---|---:|
+| Equivalent thermal resistance | 0.984 |
+| Temperature rise | 0.942 |
+| Estimated die temperature | 0.936 |
+| CTE mismatch strain | 0.907 |
+| Constrained stress indicator | 0.847 |
 
-## Next development steps
-1. Verify parameter ranges against public material sources and define a defensible operating domain.
-2. Improve the thermal network to represent realistic heat-flow paths and boundary conditions.
-3. Build an independent ANSYS or COMSOL model for comparison.
-4. Add interface mechanics and temperature-dependent/viscoelastic material behaviour as justified by evidence.
-5. Validate the surrogate on independent simulation cases and test physical trends outside the training samples.
+These scores describe approximation of the synthetic reduced-order equations only. They are not experimental accuracy or real package reliability performance. See `results/model_metrics.csv` for all model metrics. Feature-importance plots and parity plots are generated by the training script.
 
-## Reproducibility and data provenance
-No proprietary Micron data or experimental package data are used. The dataset is synthetic and generated by this repository's documented model. Preserve this distinction when presenting or extending the project.
+## Current status
+Project charter, documentation, physics functions, synthetic dataset, baseline ML training, test checks and first result plots are in place. Next work should focus on reviewing parameter ranges against traceable material sources, strengthening the physical model, and comparing with an independent FEA model.

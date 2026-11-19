@@ -1,7 +1,6 @@
 """Reduced-order steady 1-D thermal resistance model."""
 from __future__ import annotations
 
-
 def thermal_resistance(thickness_m, conductivity_W_mK, area_m2):
     """Return equivalent series thermal resistance [K/W]."""
     if len(thickness_m) != len(conductivity_W_mK):
@@ -13,7 +12,6 @@ def thermal_resistance(thickness_m, conductivity_W_mK, area_m2):
     if any(k <= 0 for k in conductivity_W_mK):
         raise ValueError("All thermal conductivities must be positive.")
     return sum(t / (k * area_m2) for t, k in zip(thickness_m, conductivity_W_mK))
-
 
 def thermal_response(thickness_m, conductivity_W_mK, area_m2, power_W, ambient_C):
     """Return Rth [K/W], deltaT [K], and estimated die temperature [°C]."""

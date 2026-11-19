@@ -1,17 +1,13 @@
 """Generate synthetic data from the documented reduced-order physics model."""
 from __future__ import annotations
-
 import argparse
 from pathlib import Path
-
 import numpy as np
 import pandas as pd
-
 from src.thermal_model import thermal_response
 from src.thermo_mechanical_model import mismatch_strain, constrained_stress_indicator
 
 ROOT = Path(__file__).resolve().parents[1]
-
 
 def generate_dataset(n_samples=3000, seed=42):
     rng = np.random.default_rng(seed)
@@ -53,7 +49,6 @@ def generate_dataset(n_samples=3000, seed=42):
         })
     return pd.concat([x, pd.DataFrame(targets)], axis=1)
 
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--n-samples", type=int, default=3000)
@@ -68,7 +63,6 @@ def main():
     df.to_csv(out, index=False)
     print(f"Saved {len(df)} samples to {out}")
     print(df[["R_th_K_W", "deltaT_K", "T_die_C", "mismatch_strain", "sigma_indicator_MPa"]].describe())
-
 
 if __name__ == "__main__":
     main()
